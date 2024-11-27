@@ -46,7 +46,9 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+    permissions:
+      id-token: write #This is required for requesting the JWT
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -56,6 +58,13 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
       
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_498600C102834401AAFB9175A95FFB13 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6B49A6122D8647A390D9ED5AC2AC53C8 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A63808C716BA4C27A0CF84798298D924 }}
+
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
@@ -63,4 +72,4 @@ jobs:
           app-name: 'scanntech'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_91F959A4BF54489095469408F6340DF4 }}
+          
